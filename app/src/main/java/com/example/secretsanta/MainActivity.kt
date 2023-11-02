@@ -4,18 +4,26 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.PopupWindow
 
 class MainActivity : AppCompatActivity() {
 
-    private var roomNames : MutableList<String> = mutableListOf()
-    private val sharedPreferences : SharedPreferences = this.getSharedPreferences("SecretSantaPreferences", Context.MODE_PRIVATE)
+    private lateinit var giftingData: GiftingData
 
+    private var roomNames : MutableList<String> = mutableListOf()
+    private lateinit var sharedPreferences : SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        sharedPreferences = this.getSharedPreferences("SecretSantaPreferences", Context.MODE_PRIVATE)
         loadRoomNamesPref()
         setContentView(R.layout.activity_main)
-    }
 
+        giftingData = GiftingData(this)
+
+        val list = giftingData.loadGiftingList("Family")
+
+    }
 
     //** WARNING : This may change as we can add a text listener to the room name text box. **//
     /**
@@ -27,7 +35,6 @@ class MainActivity : AppCompatActivity() {
         roomNames.add(roomName)
         saveRoomNamesPref(roomNames)
     }
-
 
     fun addRoom(){
         /**roomNameText.addTextChangedListener(object : TextWatcher {
