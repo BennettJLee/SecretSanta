@@ -12,7 +12,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var giftingData: GiftingData
 
     private var roomNames : MutableList<String> = mutableListOf()
+    private var personList: MutableList<Person> = mutableListOf()
     private lateinit var sharedPreferences : SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = this.getSharedPreferences("SecretSantaPreferences", Context.MODE_PRIVATE)
@@ -21,8 +23,17 @@ class MainActivity : AppCompatActivity() {
 
         giftingData = GiftingData(this)
 
+        //** TESTING : Below is for testing purposes. Load and then delete sortlist to test persistance **//
+
+        personList.add(Person("Ben", "123"))
+        personList.add(Person("Jakob", "234"))
+        personList.add(Person("Sam", "345"))
+
+        giftingData.sortList("Family", personList)
+
         val list = giftingData.loadGiftingList("Family")
 
+        Log.e("TEST", list.toString())
     }
 
     //** WARNING : This may change as we can add a text listener to the room name text box. **//

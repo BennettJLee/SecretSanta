@@ -2,6 +2,7 @@ package com.example.secretsanta
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -32,21 +33,25 @@ class GiftingData(private val context: Context) {
      * @param roomName The name of the room
      * @param giftList The list of people in the room
      */
-    private fun sortList(roomName : String, giftList: List<Person>){
+    fun sortList(roomName : String, giftList: MutableList<Person>){
 
         //copy the list and shuffle the copied list
-        giftList.toMutableList()
-        val receiveList = giftList.toMutableList()
+        var receiveList: MutableList<Person> = giftList.toMutableList()
         receiveList.shuffle()
 
-        while (giftList.isNotEmpty()){
-            //if the name is the same shuffle and try again
-            if (giftList[0].name == receiveList[0].name){
-                giftingList.add(Gifting(giftList[0], receiveList[1]))
-            } else {
-                giftingList.add(Gifting(giftList[0], receiveList[0]))
+        while (giftList.isNotEmpty()) {
+            val gifter = giftList.removeAt(0)
+
+            for (receiver in receiveList){
+                if(receiver.name != gifter.name){
+                    giftingList.add(Gifting(gifter, receiver))
+                    receiveList.remove(receiver)
+                    break
+                }
             }
         }
+
+
 
         //** WARNING : This is theoretical, I have no idea if it will work **//
         val gson = Gson()
