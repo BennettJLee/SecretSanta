@@ -4,8 +4,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
 import android.widget.PopupWindow
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private var personList: MutableList<Person> = mutableListOf()
     private lateinit var sharedPreferences : SharedPreferences
 
+    private lateinit var roomNameText : TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = this.getSharedPreferences("SecretSantaPreferences", Context.MODE_PRIVATE)
@@ -23,7 +31,23 @@ class MainActivity : AppCompatActivity() {
 
         giftingData = GiftingData(this)
 
+
+        val createRoomButton = findViewById<Button>(R.id.createRoomButton)
+        roomNameText = findViewById<TextView>(R.id.roomNameText)
+
+
+        createRoomButton.setOnClickListener {
+            createRoom()
+        }
+
+        if(roomNames.isNotEmpty()){
+            roomNameText = findViewById<TextView>(R.id.roomNameText)
+            roomNameText.text = roomNames[0]
+        }
+
         //** TESTING : Below is for testing purposes. Load and then delete sortlist to test persistance **//
+
+        Log.e("TEST", roomNames.toString())
 
         personList.add(Person("Ben", "123"))
         personList.add(Person("Jakob", "234"))
@@ -34,6 +58,9 @@ class MainActivity : AppCompatActivity() {
         val list = giftingData.loadGiftingList("Family")
 
         Log.e("TEST", list.toString())
+
+        //clearRoomNamesPref()
+
     }
 
     //** WARNING : This may change as we can add a text listener to the room name text box. **//
@@ -42,21 +69,37 @@ class MainActivity : AppCompatActivity() {
      *
      * @param roomName the name of the room
      */
-    fun saveRoom(roomName: String){
+    private fun saveRoom(roomName: String){
         roomNames.add(roomName)
         saveRoomNamesPref(roomNames)
     }
 
-    fun addRoom(){
-        /**roomNameText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+    private fun createRoom(){
 
-            override fun afterTextChanged(s: Editable?) {
-                roomNameChanged = true
+        roomNameText.requestFocus()
 
+        var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(roomNameText, InputMethodManager.SHOW_IMPLICIT)
+
+        //val roomNameChanged = false
+
+        roomNameText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val enteredText = roomNameText.text.toString()
+                roomNames.add(enteredText)
+                saveRoomNamesPref(roomNames)
+
+                inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
+
+                Log.e("TEST", "1")
+                true
+            } else {
+                Log.e("TEST", "2")
+                false
             }
-        }) **/
+        }
+        Log.e("TEST", roomNames.toString())
     }
 
     /**
@@ -64,7 +107,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @param roomName the name of the room
      */
-    fun deleteRoom(roomName : String){
+    private fun deleteRoom(roomName : String){
         if(roomNames.contains(roomName)){
             roomNames.remove(roomName)
             saveRoomNamesPref(roomNames)
@@ -94,5 +137,9 @@ class MainActivity : AppCompatActivity() {
     private fun saveRoomNamesPref(roomNames : List<String>){
         val stringSet = roomNames.toSet()
         sharedPreferences.edit().putStringSet("RoomNames", stringSet).apply()
+    }
+
+    private fun clearRoomNamesPref(){
+        sharedPreferences.edit().remove("RoomNames").apply()
     }
 }

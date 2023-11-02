@@ -51,11 +51,7 @@ class GiftingData(private val context: Context) {
             }
         }
 
-
-
-        //** WARNING : This is theoretical, I have no idea if it will work **//
         val gson = Gson()
-        // Serialize the list to a JSON string
         val giftingJson = gson.toJson(giftingList)
 
         sharedPreferences.edit().putString(roomName, giftingJson).apply()
@@ -70,10 +66,11 @@ class GiftingData(private val context: Context) {
 
         var giftingListPref = mutableListOf<Gifting>()
 
-        //** WARNING : This is theoretical, I have no idea if it will work **//
+        // check if sharedPreferences has the current room name, if not, don't retrieve anything
         if (sharedPreferences.contains(roomName)){
             val json = sharedPreferences.getString(roomName, null)
 
+            // Get the json and convert it into a list
             val gson = Gson()
             val giftList = object : TypeToken<List<Gifting>>() {}.type
             giftingListPref = gson.fromJson(json, giftList)
