@@ -50,8 +50,8 @@ class MainActivity : AppCompatActivity() {
         Log.e("TEST", roomNames.toString())
 
         personList.add(Person("Ben", "123"))
-        personList.add(Person("Jakob", "234"))
-        personList.add(Person("Sam", "345"))
+        personList.add(Person("Sam", "123"))
+        personList.add(Person("Jakob", "123"))
 
         giftingData.sortList("Family", personList)
 
@@ -92,10 +92,8 @@ class MainActivity : AppCompatActivity() {
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
 
-                Log.e("TEST", "1")
                 true
             } else {
-                Log.e("TEST", "2")
                 false
             }
         }
