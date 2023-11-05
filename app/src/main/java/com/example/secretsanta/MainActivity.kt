@@ -66,8 +66,8 @@ class MainActivity : AppCompatActivity() {
         Log.e("TEST", roomNames.toString())
 
         personList.add(Person("Ben", "123"))
-        personList.add(Person("Jakob", "234"))
-        personList.add(Person("Sam", "345"))
+        personList.add(Person("Sam", "123"))
+        personList.add(Person("Jakob", "123"))
 
         giftingData.sortList("Family", personList)
 
