@@ -2,16 +2,17 @@ package com.example.secretsanta
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.PopupWindow
+import android.widget.EditText
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,26 +23,41 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sharedPreferences : SharedPreferences
 
     private lateinit var roomNameText : TextView
+    private lateinit var addRoomButton : Button
+
+    private lateinit var createRoomButton : Button
+    private lateinit var createRoomText : TextView
+    private lateinit var joinRoomButton : Button
+
+    private var inRoom : Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = this.getSharedPreferences("SecretSantaPreferences", Context.MODE_PRIVATE)
         loadRoomNamesPref()
+
+        if(inRoom){
+            launchHomeView()
+        } else {
+            launchJoinCreateView()
+        }
+    }
+
+    private fun launchHomeView(){
         setContentView(R.layout.activity_main)
+
+        addRoomButton = findViewById(R.id.addRoomButton)
+        roomNameText = findViewById(R.id.roomNameText)
 
         giftingData = GiftingData(this)
 
 
-        val createRoomButton = findViewById<Button>(R.id.createRoomButton)
-        roomNameText = findViewById<TextView>(R.id.roomNameText)
-
-
-        createRoomButton.setOnClickListener {
-            createRoom()
+        addRoomButton.setOnClickListener {
+            addRoom(roomNameText)
         }
 
-        if(roomNames.isNotEmpty()){
-            roomNameText = findViewById<TextView>(R.id.roomNameText)
+        if (roomNames.isNotEmpty()) {
+            roomNameText = findViewById(R.id.roomNameText)
             roomNameText.text = roomNames[0]
         }
 
@@ -59,7 +75,26 @@ class MainActivity : AppCompatActivity() {
 
         Log.e("TEST", list.toString())
 
-        //clearRoomNamesPref()
+        clearRoomNamesPref()
+    }
+
+    private fun launchJoinCreateView(){
+        setContentView(R.layout.activity_joincreate)
+
+        createRoomButton = findViewById(R.id.createRoomButton)
+        joinRoomButton = findViewById(R.id.joinRoomButton)
+
+        createRoomText = findViewById(R.id.createRoomText)
+
+        createRoomButton.setOnClickListener {
+            createRoom(createRoomText)
+
+        }
+
+        //** ATTENTION : Current iteration of the app doesn't use this **//
+        joinRoomButton.setOnClickListener {
+
+        }
 
     }
 
@@ -74,32 +109,63 @@ class MainActivity : AppCompatActivity() {
         saveRoomNamesPref(roomNames)
     }
 
-    private fun createRoom(){
+    private fun addRoom(editText : TextView){
 
-        roomNameText.requestFocus()
+        editText.requestFocus()
 
         var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(roomNameText, InputMethodManager.SHOW_IMPLICIT)
+        inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
 
-        //val roomNameChanged = false
-
-        roomNameText.setOnEditorActionListener { v, actionId, event ->
+        editText.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val enteredText = roomNameText.text.toString()
+                val enteredText = editText.text.toString()
                 roomNames.add(enteredText)
                 saveRoomNamesPref(roomNames)
 
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
 
-                Log.e("TEST", "1")
                 true
             } else {
-                Log.e("TEST", "2")
                 false
             }
         }
-        Log.e("TEST", roomNames.toString())
+    }
+
+    private fun createRoom(editText : TextView){
+
+        editText.visibility = View.VISIBLE
+        editText.isEnabled = true
+        editText.requestFocus()
+
+        var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT)
+
+        editText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val enteredText = editText.text.toString()
+
+                inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
+
+                // if the text is not empty, save the name and launch home screen
+                // otherwise, remove the edit text from the screen
+                if (enteredText.isNotEmpty()){
+                    roomNames.add(enteredText)
+                    saveRoomNamesPref(roomNames)
+
+                    editText.setOnEditorActionListener(null)
+                    launchHomeView()
+                } else {
+                    editText.visibility = View.INVISIBLE
+                    editText.isEnabled = false
+                }
+
+                true
+            } else {
+                false
+            }
+        }
     }
 
     /**
@@ -124,9 +190,11 @@ class MainActivity : AppCompatActivity() {
             val stringSet = sharedPreferences.getStringSet("RoomNames", setOf())
             if (stringSet != null) {
                 roomNames = stringSet.toMutableList()
+                inRoom = true
             }
+        } else {
+            inRoom = false
         }
-        // else change state of program to create/join screen
     }
 
     /**

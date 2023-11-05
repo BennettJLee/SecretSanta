@@ -2,4 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="primaryGreen">#04B404</color>
+    <color name="primaryRed">#B51111</color>
+    <color name="secondaryGreen">#E0FADB</color>
+    <color name="secondaryRed">#F6CECE</color>
+    <color name="backgroundBrown">#DAD0BD</color>
 </resources>
