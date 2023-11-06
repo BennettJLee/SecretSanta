@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var createRoomButton : Button
     private lateinit var createRoomText : TextView
-    private lateinit var joinRoomButton : Button
 
     private var inRoom : Boolean = false
 
@@ -87,11 +86,6 @@ class MainActivity : AppCompatActivity() {
 
         createRoomButton.setOnClickListener {
             createRoom(createRoomText)
-
-        }
-
-        //** ATTENTION : Current iteration of the app doesn't use this **//
-        joinRoomButton.setOnClickListener {
 
         }
 
