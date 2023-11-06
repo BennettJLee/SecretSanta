@@ -82,7 +82,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_joincreate)
 
         createRoomButton = findViewById(R.id.createRoomButton)
-        joinRoomButton = findViewById(R.id.joinRoomButton)
 
         createRoomText = findViewById(R.id.createRoomText)
 
