@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="ExposedDropdownMenu" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">#fff</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="android:textColorHint">#fff</item>
+    </style>
+
+    <style name="DropDownStyle" parent="Widget.AppCompat.AutoCompleteTextView">
+
+        <item name="enforceMaterialTheme">true</item>
+        <item name="enforceTextAppearance">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:paddingStart" tools:ignore="NewApi">16dp</item>
+        <item name="android:paddingEnd" tools:ignore="NewApi">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:paddingRight">16dp</item>
+        <!-- Edit text's default text size is 16sp which currently equals to 22dp total line height, so
+         we need a total of 34dp to get the 56dp height of the default layout. -->
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:textAppearance">?attr/textAppearanceSubtitle1</item>
+        <item name="android:dropDownVerticalOffset">@dimen/mtrl_exposed_dropdown_menu_popup_vertical_offset</item>
+        <item name="android:popupElevation" tools:ignore="NewApi">@dimen/mtrl_exposed_dropdown_menu_popup_elevation</item>
+        <item name="autoCompleteTextViewStyle">
+            @style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox
+        </item>
+        <item name="materialThemeOverlay">
+            @style/ThemeOverlay.MaterialComponents.AutoCompleteTextView.FilledBox
+        </item>
+        <item name="endIconMode">dropdown_menu</item>
+    </style>
+</resources>

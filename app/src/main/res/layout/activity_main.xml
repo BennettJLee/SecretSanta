@@ -1,15 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundBrown"
     tools:context=".MainActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:background="#FFFFFF"
+        android:elevation="2dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/roomListTextInputLayout"
+            style="@style/ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="#FFFFFF"
+            app:endIconTint="#595959"
+            app:hintTextColor="#252525"
+            app:startIconTint="#424242">
+
+            <AutoCompleteTextView
+                android:id="@+id/roomListAutoCompleteTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:imeOptions="actionDone"
+                android:inputType="none"
+                android:text="room"
+                android:textAlignment="textStart"
+                android:textSize="24sp"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="?android:attr/listDivider" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/settingsTextInputLayout"
+            style="@style/ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="17dp"
+            android:layout_marginBottom="19dp"
+            android:layout_weight="5"
+            android:background="#FFFFFF"
+            android:forceHasOverlappingRendering="true"
+            android:gravity="top"
+            android:padding="0dp"
+            app:boxBackgroundMode="outline"
+            app:endIconDrawable="@drawable/settings_vertical"
+            app:endIconMode="dropdown_menu"
+            app:endIconScaleType="centerInside"
+            app:endIconTint="#595959"
+            app:hintTextColor="#252525">
+
+            <AutoCompleteTextView
+                android:id="@+id/settingsAutoCompleteTextView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#FFFFFF"
+                android:gravity="center"
+                android:inputType="none"
+                android:text="room"
+                android:textAlignment="textStart"
+                android:textSize="0sp"
+                tools:ignore="LabelFor" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/roomNameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="29dp"
         android:layout_marginTop="26dp"
         android:background="#AAAAAA"
@@ -19,33 +103,31 @@
         android:inputType="text"
         android:minWidth="200sp"
         android:minHeight="80sp"
-        android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="24sp" />
 
     <Button
         android:id="@+id/addRoomButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="16dp"
-        android:text="Create Room"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="Create Room" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerInParent="true"
         android:layout_marginStart="177dp"
         android:layout_marginEnd="178dp"
         android:layout_marginBottom="40dp"
         android:clickable="true"
+        android:contentDescription="TODO"
         android:scaleX="1.5"
         android:scaleY="1.5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        android:focusable="true" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
