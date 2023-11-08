@@ -11,9 +11,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
         android:background="#FFFFFF"
-        android:elevation="2dp"
+        android:elevation="8dp"
         android:orientation="horizontal">
 
         <com.google.android.material.textfield.TextInputLayout
@@ -37,6 +40,7 @@
                 android:gravity="center"
                 android:imeOptions="actionDone"
                 android:inputType="none"
+                android:popupBackground="@drawable/rounded_corner"
                 android:text="room"
                 android:textAlignment="textStart"
                 android:textSize="24sp"
@@ -58,19 +62,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
-            android:layout_marginTop="17dp"
-            android:layout_marginBottom="19dp"
             android:layout_weight="5"
             android:background="#FFFFFF"
             android:forceHasOverlappingRendering="true"
             android:gravity="top"
             android:padding="0dp"
             app:boxBackgroundMode="outline"
-            app:endIconDrawable="@drawable/settings_vertical"
+            app:endIconDrawable="@mipmap/ic_settings_triple_foreground"
             app:endIconMode="dropdown_menu"
-            app:endIconScaleType="centerInside"
             app:endIconTint="#595959"
-            app:hintTextColor="#252525">
+            app:hintTextColor="#252525"
+            app:startIconTint="#00FFFFFF">
 
             <AutoCompleteTextView
                 android:id="@+id/settingsAutoCompleteTextView"
@@ -78,10 +80,13 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="#FFFFFF"
+                android:dropDownWidth="200dp"
                 android:gravity="center"
                 android:inputType="none"
+                android:popupBackground="@drawable/rounded_corner"
                 android:text="room"
-                android:textAlignment="textStart"
+                android:textColorHighlight="#81FFFFFF"
+                android:textColorLink="#00FFFFFF"
                 android:textSize="0sp"
                 tools:ignore="LabelFor" />
 
@@ -89,45 +94,22 @@
 
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/roomNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="29dp"
-        android:layout_marginTop="26dp"
-        android:background="#AAAAAA"
-        android:clickable="false"
-        android:hint="Room Name"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:minWidth="200sp"
-        android:minHeight="80sp"
-        android:textSize="24sp" />
-
-    <Button
-        android:id="@+id/addRoomButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="16dp"
-        android:text="Create Room" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerInParent="true"
-        android:layout_marginStart="177dp"
-        android:layout_marginEnd="178dp"
         android:layout_marginBottom="40dp"
         android:clickable="true"
         android:contentDescription="TODO"
-        android:scaleX="1.5"
-        android:scaleY="1.5"
-        android:focusable="true" />
+        android:focusable="true"
+        android:foreground="@android:drawable/ic_input_add"
+        android:foregroundTint="@color/black"
+        android:scaleX="1.3"
+        android:scaleY="1.3"
+        app:backgroundTint="@color/white"
+        app:elevation="8dp"
+        tools:ignore="RelativeOverlap" />
 
 </RelativeLayout>

@@ -5,4 +5,8 @@
     <string name="enter_room_name">Enter Room Name...</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="settings_values">
+        <item>Add Room</item>
+        <item>Remove Room</item>
+    </string-array>
 </resources>

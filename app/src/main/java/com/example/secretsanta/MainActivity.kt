@@ -14,6 +14,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import com.google.android.material.textfield.TextInputLayout
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,8 +26,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var roomNameText : TextView
     private lateinit var addRoomButton : Button
-    private lateinit var autoCompleteTextView : AutoCompleteTextView
-    private lateinit var textInputLayout : TextInputLayout
+    private lateinit var roomListAutoCompleteTextView : AutoCompleteTextView
+    private lateinit var roomListTextInputLayout : TextInputLayout
+
+    private lateinit var settingsArray : Array<String>
+    private lateinit var settingsAutoCompleteTextView: AutoCompleteTextView
+    private lateinit var settingsTextInputLayout : TextInputLayout
 
     private lateinit var createRoomButton : Button
     private lateinit var createRoomText : TextView
@@ -48,43 +53,49 @@ class MainActivity : AppCompatActivity() {
     private fun launchHomeView(){
         setContentView(R.layout.activity_main)
 
-        addRoomButton = findViewById(R.id.addRoomButton)
-        roomNameText = findViewById(R.id.roomNameText)
-
         giftingData = GiftingData(this)
 
-        autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.roomListAutoCompleteTextView)
-        textInputLayout = findViewById<TextInputLayout>(R.id.roomListTextInputLayout)
+        settingsArray = resources.getStringArray(R.array.settings_values)
+        settingsAutoCompleteTextView = findViewById(R.id.settingsAutoCompleteTextView)
+        settingsTextInputLayout = findViewById(R.id.settingsTextInputLayout)
+
+        roomListAutoCompleteTextView = findViewById(R.id.roomListAutoCompleteTextView)
+        roomListTextInputLayout = findViewById(R.id.roomListTextInputLayout)
 
 
-        val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
-        adapter.setDropDownViewResource(R.layout.dropdown_item)
+        val roomListAdapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
+        roomListAutoCompleteTextView.setAdapter(roomListAdapter)
 
-        autoCompleteTextView.setAdapter(adapter)
+        val settingsAdapter = ArrayAdapter(this, R.layout.dropdown_item, settingsArray)
+        settingsAutoCompleteTextView.setAdapter(settingsAdapter)
 
-        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+
+        roomListAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
             val selectedItem = roomNames[position]
-            textInputLayout.editText?.setText(selectedItem)
+            roomListTextInputLayout.editText?.setText(selectedItem)
 
             //** WARNING : Changes need to be made here. Maybe a method
-            val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
+            val roomListAdapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
 
-            autoCompleteTextView.setAdapter(adapter)
+            roomListAutoCompleteTextView.setAdapter(roomListAdapter)
         }
 
-        addRoomButton.setOnClickListener {
+        settingsAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            if (position == 0){
+                addRoom()
+            } else if (position == 1) {
 
-            addRoom()
+            }
+
         }
 
         //** WARNING : Changes need to be made here
         if (roomNames.isNotEmpty()) {
-            roomNameText = findViewById(R.id.roomNameText)
-            roomNameText.text = roomNames[0]
-            autoCompleteTextView.setText(roomNames[0])
+
+            roomListAutoCompleteTextView.setText(roomNames[0])
             val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
 
-            autoCompleteTextView.setAdapter(adapter)
+            roomListAutoCompleteTextView.setAdapter(adapter)
         }
 
         //** TESTING : Below is for testing purposes. Load and then delete sortlist to test persistance **//
@@ -131,34 +142,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun addRoom(){
 
-        autoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
+        roomListAutoCompleteTextView.inputType = InputType.TYPE_CLASS_TEXT
 
-        autoCompleteTextView.setText("")
-        autoCompleteTextView.hint = "Enter Name..."
-        autoCompleteTextView.threshold = 100
+        roomListAutoCompleteTextView.setText("")
+        roomListAutoCompleteTextView.hint = "Enter Name..."
+        roomListAutoCompleteTextView.threshold = 100
 
-        autoCompleteTextView.requestFocus()
+        roomListAutoCompleteTextView.requestFocus()
 
         var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(autoCompleteTextView, InputMethodManager.SHOW_IMPLICIT)
+        inputMethodManager.showSoftInput(roomListAutoCompleteTextView, InputMethodManager.SHOW_IMPLICIT)
 
-        autoCompleteTextView.setOnEditorActionListener { v, actionId, event ->
+        roomListAutoCompleteTextView.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val enteredText = autoCompleteTextView.text.toString()
+                val enteredText = roomListAutoCompleteTextView.text.toString().replaceFirstChar { it.uppercaseChar() }
                 roomNames.add(enteredText)
                 saveRoomNamesPref(roomNames)
 
-                textInputLayout.editText?.setText(enteredText)
+                roomListTextInputLayout.editText?.setText(enteredText)
 
                 //** WARNING : Changes need to be made here. Maybe a method
                 val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
-                autoCompleteTextView.setAdapter(adapter)
+                roomListAutoCompleteTextView.setAdapter(adapter)
 
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
 
-                autoCompleteTextView.threshold = 0
-                autoCompleteTextView.inputType = InputType.TYPE_NULL
+                roomListAutoCompleteTextView.threshold = 0
+                roomListAutoCompleteTextView.inputType = InputType.TYPE_NULL
                 true
             } else {
                 false
@@ -177,7 +188,7 @@ class MainActivity : AppCompatActivity() {
 
         editText.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val enteredText = editText.text.toString()
+                val enteredText = editText.text.toString().replaceFirstChar { it.uppercaseChar() }
 
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
