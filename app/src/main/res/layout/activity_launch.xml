@@ -16,7 +16,7 @@
         android:autofillHints=""
         android:background="@drawable/rounded_corner"
         android:clickable="false"
-        android:elevation="4dp"
+        android:elevation="8dp"
         android:enabled="false"
         android:hint="@string/enter_room_name"
         android:imeOptions="actionDone"
