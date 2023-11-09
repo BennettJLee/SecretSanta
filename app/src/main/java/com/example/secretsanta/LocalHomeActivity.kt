@@ -52,7 +52,7 @@ class LocalHomeActivity : AppCompatActivity() {
 
         roomListAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
 
-            val selectedItem = RoomListSingleton.roomList[position]
+            val selectedItem = roomListAutoCompleteTextView.adapter.getItem(position).toString()
             roomListTextInputLayout.editText?.setText(selectedItem)
 
             sharedPreferences.saveCurrentRoomPref(selectedItem)
