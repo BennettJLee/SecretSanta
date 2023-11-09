@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             if (position == 0){
                 addRoom()
             } else if (position == 1) {
-
+                removeRoom()
             }
 
         }
@@ -156,14 +156,18 @@ class MainActivity : AppCompatActivity() {
         roomListAutoCompleteTextView.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val enteredText = roomListAutoCompleteTextView.text.toString().replaceFirstChar { it.uppercaseChar() }
-                roomNames.add(enteredText)
-                saveRoomNamesPref(roomNames)
 
-                roomListTextInputLayout.editText?.setText(enteredText)
+                if (!roomNames.contains(enteredText)) {
 
-                //** WARNING : Changes need to be made here. Maybe a method
-                val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
-                roomListAutoCompleteTextView.setAdapter(adapter)
+                    roomNames.add(enteredText)
+                    saveRoomNamesPref(roomNames)
+
+                    roomListTextInputLayout.editText?.setText(enteredText)
+
+                    //** WARNING : Changes need to be made here. Maybe a method
+                    val adapter = ArrayAdapter(this, R.layout.dropdown_item, roomNames)
+                    roomListAutoCompleteTextView.setAdapter(adapter)
+                }
 
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
@@ -175,6 +179,10 @@ class MainActivity : AppCompatActivity() {
                 false
             }
         }
+    }
+
+    private fun removeRoom() {
+
     }
 
     private fun createRoom(editText : TextView){
