@@ -17,13 +17,48 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
      *
      * @param roomName The name of the room
      */
-    fun loadGiftingListPref(roomName : String) : MutableList<Gifting>{
+    fun loadPersonListPref(roomName : String) {
 
-        var giftingListPref = mutableListOf<Gifting>()
+        var personListPref = mutableListOf<Person>()
 
         // check if sharedPreferences has the current room name, if not, don't retrieve anything
         if (sharedPreferences.contains(roomName)){
             val json = sharedPreferences.getString(roomName, null)
+
+            // Get the json and convert it into a list
+            val gson = Gson()
+            val personList = object : TypeToken<List<Person>>() {}.type
+            personListPref = gson.fromJson(json, personList)
+        }
+        PersonListSingleton.personList = personListPref
+    }
+
+    /**
+     * Save the gifting list to sharedPreferences.
+     *
+     * @param roomName the name of the room
+     */
+    fun savePersonListPref(roomName : String){
+        val gson = Gson()
+        val personJson = gson.toJson(PersonListSingleton.personList)
+
+        sharedPreferences.edit().putString(roomName, personJson).apply()
+    }
+
+    /**
+     * This function will load the gifting list from sharedPreferences
+     *
+     * @param roomName The name of the room
+     */
+    fun loadGiftingListPref(roomName : String) : MutableList<Gifting>{
+
+        var giftingListPref = mutableListOf<Gifting>()
+
+        val roomNameGifting = roomName + "Gifting"
+
+        // check if sharedPreferences has the current room name, if not, don't retrieve anything
+        if (sharedPreferences.contains(roomNameGifting)){
+            val json = sharedPreferences.getString(roomNameGifting, null)
 
             // Get the json and convert it into a list
             val gson = Gson()
@@ -43,7 +78,9 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
         val gson = Gson()
         val giftingJson = gson.toJson(giftingList)
 
-        sharedPreferences.edit().putString(roomName, giftingJson).apply()
+        val roomNameGifting = roomName + "Gifting"
+
+        sharedPreferences.edit().putString(roomNameGifting, giftingJson).apply()
     }
 
     /**

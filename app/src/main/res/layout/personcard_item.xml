@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/personItemLayout"
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+    android:background="@null">
+
+    <LinearLayout
+        android:id="@+id/padding"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:background="@drawable/person_card"
+        android:baselineAligned="false"
+        android:clickable="false"
+        android:elevation="8dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        tools:ignore="UselessParent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <EditText
+                android:id="@+id/personNameEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="20dp"
+                android:background="@null"
+                android:clickable="false"
+                android:editable="true"
+                android:focusable="true"
+                android:hint="Enter Name..."
+                android:imeOptions="actionDone"
+                android:inputType="text|textNoSuggestions"
+                android:singleLine="true"
+                android:textColor="#FFFFFF"
+                android:textColorHighlight="#EF5252"
+                android:textColorHint="#BABABA"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/removePersonButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/removeImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="15dp"
+                android:contentDescription="TODO"
+                app:srcCompat="@android:drawable/ic_delete"
+                app:tint="#6A000000" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

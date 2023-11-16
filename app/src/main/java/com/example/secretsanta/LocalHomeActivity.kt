@@ -2,33 +2,46 @@ package com.example.secretsanta
 
 import android.content.Context
 import android.content.Intent
+import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.secretsanta.databinding.ActivityLocalHomeBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 
 class LocalHomeActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences : LocalSharedPreferences
 
-    private var personList: MutableList<Person> = mutableListOf()
+    private lateinit var binding : ActivityLocalHomeBinding
+    private lateinit var personAdapter: PersonAdapter
 
     // ui
     private lateinit var roomListAutoCompleteTextView : AutoCompleteTextView
     private lateinit var roomListTextInputLayout : TextInputLayout
+    //private lateinit var personRecyclerView : RecyclerView
+    private lateinit var addFAB : FloatingActionButton
 
     private lateinit var settingsArray : Array<String>
     private lateinit var settingsAutoCompleteTextView: AutoCompleteTextView
     private lateinit var settingsTextInputLayout : TextInputLayout
 
+    private lateinit var currentRoom : String
+    private lateinit var giftingList: MutableList<Gifting>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_local_home)
+        binding = ActivityLocalHomeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         sharedPreferences = LocalSharedPreferences(this)
 
@@ -36,15 +49,27 @@ class LocalHomeActivity : AppCompatActivity() {
         settingsAutoCompleteTextView = findViewById(R.id.settingsAutoCompleteTextView)
         settingsTextInputLayout = findViewById(R.id.settingsTextInputLayout)
 
+        //personRecyclerView = findViewById(R.id.personRecyclerView)
         roomListAutoCompleteTextView = findViewById(R.id.roomListAutoCompleteTextView)
         roomListTextInputLayout = findViewById(R.id.roomListTextInputLayout)
 
-        //** WARNING : Changes need to be made here
+        addFAB = findViewById(R.id.floatingActionButton)
+
+
         if (RoomListSingleton.roomList.isNotEmpty()) {
-            roomListAutoCompleteTextView.setText(sharedPreferences.loadCurrentRoomPref())
+            currentRoom = sharedPreferences.loadCurrentRoomPref()
+            roomListAutoCompleteTextView.setText(currentRoom)
 
             refreshRoomDropDown()
         }
+
+        //load gifting and person list for current room
+        giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
+        sharedPreferences.loadPersonListPref(currentRoom)
+
+
+        updatePersonListView()
+
 
         val settingsAdapter = ArrayAdapter(this, R.layout.dropdown_item, settingsArray)
         settingsAutoCompleteTextView.setAdapter(settingsAdapter)
@@ -55,7 +80,12 @@ class LocalHomeActivity : AppCompatActivity() {
             val selectedItem = roomListAutoCompleteTextView.adapter.getItem(position).toString()
             roomListTextInputLayout.editText?.setText(selectedItem)
 
-            sharedPreferences.saveCurrentRoomPref(selectedItem)
+            currentRoom = selectedItem
+            sharedPreferences.saveCurrentRoomPref(currentRoom)
+
+            sharedPreferences.loadPersonListPref(currentRoom)
+            updatePersonListView()
+
             roomListAutoCompleteTextView.threshold = 0
             roomListAutoCompleteTextView.inputType = InputType.TYPE_NULL
 
@@ -67,25 +97,57 @@ class LocalHomeActivity : AppCompatActivity() {
                 addRoom()
             } else if (position == 1) {
                 removeRoom()
+            } else if (position == 2) {
+                sortGifting()
             }
 
         }
 
+        addFAB.setOnClickListener {
+            addPerson()
+        }
+    }
 
 
-        //** TESTING : Below is for testing purposes. Load and then delete sortlist to test persistance **//
+    private fun updatePersonListView() {
+        //need to save a new list
+        personAdapter = PersonAdapter(this, binding.personRecyclerView, currentRoom, PersonListSingleton.personList)
 
-        personList.add(Person("Ben", "123"))
-        personList.add(Person("Sam", "123"))
-        personList.add(Person("Jakob", "123"))
+        binding.personRecyclerView.adapter = personAdapter
+        var layoutManager = LinearLayoutManager(this)
+        binding.personRecyclerView.layoutManager = layoutManager
 
-        sortGifting(personList)
+        binding.personRecyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                binding.personRecyclerView.viewTreeObserver.removeOnPreDrawListener(this)
 
-        val list = sharedPreferences.loadGiftingListPref("Family")
+                val firstItemPosition = layoutManager.findFirstVisibleItemPosition()
+                val firstItemView = layoutManager.findViewByPosition(firstItemPosition)
 
-        Log.e("TEST", list.toString())
+                if (firstItemPosition == 0 && firstItemView != null) {
+                    val recyclerViewHeight = binding.personRecyclerView.height
+                    val firstItemHeight = firstItemView.height
 
-        //sharedPreferences.clearRoomNamesPref()
+                    // Calculate padding to allow scrolling all the way up until the last item is visible
+                    val padding = recyclerViewHeight - firstItemHeight
+                    binding.personRecyclerView.setPadding(0, 0, 0, padding)
+                }
+
+                return true
+            }
+        })
+
+    }
+
+    /**
+     * This function adds a person to the room
+     */
+    private fun addPerson(){
+
+        PersonListSingleton.personList.add(Person(""))
+
+        personAdapter = PersonAdapter(this, binding.personRecyclerView, currentRoom, PersonListSingleton.personList)
+        binding.personRecyclerView.adapter = personAdapter
     }
 
     /**
@@ -101,6 +163,10 @@ class LocalHomeActivity : AppCompatActivity() {
 
         roomListAutoCompleteTextView.requestFocus()
 
+        //clear the person list and update the listView
+        PersonListSingleton.personList.clear()
+        updatePersonListView()
+
         var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(roomListAutoCompleteTextView, InputMethodManager.SHOW_IMPLICIT)
 
@@ -114,9 +180,13 @@ class LocalHomeActivity : AppCompatActivity() {
                     RoomListSingleton.roomList.add(enteredText)
                     sharedPreferences.saveRoomNamesPref(RoomListSingleton.roomList)
 
-                    roomListTextInputLayout.editText?.setText(enteredText)
-                    sharedPreferences.saveCurrentRoomPref(enteredText)
+                    currentRoom = enteredText
 
+                    roomListTextInputLayout.editText?.setText(currentRoom)
+                    sharedPreferences.saveCurrentRoomPref(currentRoom)
+
+                    sharedPreferences.loadPersonListPref(currentRoom)
+                    updatePersonListView()
                     refreshRoomDropDown()
                 }
 
@@ -134,16 +204,24 @@ class LocalHomeActivity : AppCompatActivity() {
 
     /**
      * Remove a room from the list of room names
-     *
-     * @param roomName the name of the room
      */
     private fun removeRoom() {
+        //remove room and save the room list
         RoomListSingleton.roomList.remove(roomListAutoCompleteTextView.text.toString())
         sharedPreferences.saveRoomNamesPref(RoomListSingleton.roomList)
 
+        //clear the person list and update the listView
+        PersonListSingleton.personList.clear()
+        updatePersonListView()
+
         if (RoomListSingleton.roomList.isNotEmpty()){
             roomListAutoCompleteTextView.setText(RoomListSingleton.roomList[0])
-            sharedPreferences.saveCurrentRoomPref(RoomListSingleton.roomList[0])
+            currentRoom = RoomListSingleton.roomList[0]
+            sharedPreferences.saveCurrentRoomPref(currentRoom)
+
+            //load the person list and update the listView
+            sharedPreferences.loadPersonListPref(currentRoom)
+            updatePersonListView()
         } else {
             val intent = Intent(this, LaunchActivity::class.java)
             startActivity(intent)
@@ -157,17 +235,17 @@ class LocalHomeActivity : AppCompatActivity() {
      *
      * @param giftList The list of people in the room
      */
-    private fun sortGifting(giftList: MutableList<Person>) : List<Gifting>{
+    private fun sortGifting() : List<Gifting>{
 
         val giftingList = mutableListOf<Gifting>()
 
         //copy the list and shuffle the copied list
-        val receiveList: MutableList<Person> = giftList.toMutableList()
+        val receiveList: MutableList<Person> = PersonListSingleton.personList.toMutableList()
         receiveList.shuffle()
 
         //match across lists until both are empty
-        while (giftList.isNotEmpty()) {
-            val gifter = giftList.removeAt(0)
+        while (PersonListSingleton.personList.isNotEmpty()) {
+            val gifter = PersonListSingleton.personList.removeAt(0)
 
             for (receiver in receiveList){
                 if(receiver.name != gifter.name){
@@ -178,6 +256,7 @@ class LocalHomeActivity : AppCompatActivity() {
             }
         }
 
+        sharedPreferences.saveGiftingListPref(currentRoom, giftingList)
         return giftingList
     }
 

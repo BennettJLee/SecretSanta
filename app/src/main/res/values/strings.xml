@@ -9,5 +9,6 @@
     <string-array name="settings_values">
         <item>Add Room</item>
         <item>Remove Room</item>
+        <item>Draw Names</item>
     </string-array>
 </resources>

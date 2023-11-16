@@ -10,6 +10,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"></LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/roomListLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
@@ -17,7 +23,8 @@
         android:layout_marginBottom="0dp"
         android:background="#FFFFFF"
         android:elevation="8dp"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="visible">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/roomListTextInputLayout"
@@ -25,6 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:layout_weight="1"
             android:background="#FFFFFF"
             app:endIconTint="#595959"
@@ -43,7 +52,7 @@
                 android:popupBackground="@drawable/rounded_corner"
                 android:text="room"
                 android:textAlignment="textStart"
-                android:textSize="24sp"
+                android:textSize="28sp"
                 android:textStyle="bold"
                 tools:ignore="LabelFor" />
 
@@ -94,6 +103,15 @@
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/personRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/roomListLayout"
+        android:clipToPadding="false"
+        android:fadeScrollbars="true"
+        android:nestedScrollingEnabled="false" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
