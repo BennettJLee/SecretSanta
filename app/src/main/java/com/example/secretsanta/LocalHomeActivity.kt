@@ -2,18 +2,17 @@ package com.example.secretsanta
 
 import android.content.Context
 import android.content.Intent
-import android.nfc.Tag
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
-import android.util.Log
+import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.secretsanta.databinding.ActivityLocalHomeBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
@@ -28,7 +27,6 @@ class LocalHomeActivity : AppCompatActivity() {
     // ui
     private lateinit var roomListAutoCompleteTextView : AutoCompleteTextView
     private lateinit var roomListTextInputLayout : TextInputLayout
-    //private lateinit var personRecyclerView : RecyclerView
     private lateinit var addFAB : FloatingActionButton
 
     private lateinit var settingsArray : Array<String>
@@ -49,7 +47,6 @@ class LocalHomeActivity : AppCompatActivity() {
         settingsAutoCompleteTextView = findViewById(R.id.settingsAutoCompleteTextView)
         settingsTextInputLayout = findViewById(R.id.settingsTextInputLayout)
 
-        //personRecyclerView = findViewById(R.id.personRecyclerView)
         roomListAutoCompleteTextView = findViewById(R.id.roomListAutoCompleteTextView)
         roomListTextInputLayout = findViewById(R.id.roomListTextInputLayout)
 
@@ -77,6 +74,8 @@ class LocalHomeActivity : AppCompatActivity() {
 
         roomListAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
 
+            closeKeyboard(roomListTextInputLayout)
+
             val selectedItem = roomListAutoCompleteTextView.adapter.getItem(position).toString()
             roomListTextInputLayout.editText?.setText(selectedItem)
 
@@ -93,28 +92,38 @@ class LocalHomeActivity : AppCompatActivity() {
         }
 
         settingsAutoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
-            if (position == 0){
-                addRoom()
-            } else if (position == 1) {
-                removeRoom()
-            } else if (position == 2) {
-                sortGifting()
-            }
 
+            closeKeyboard(settingsAutoCompleteTextView)
+
+            when (position) {
+                0 -> {
+                    addRoom()
+                }
+                1 -> {
+                    removeRoom()
+                }
+                2 -> {
+                    drawNames()
+                }
+            }
         }
 
         addFAB.setOnClickListener {
+
+            closeKeyboard(addFAB)
+
             addPerson()
         }
+
     }
 
 
     private fun updatePersonListView() {
         //need to save a new list
-        personAdapter = PersonAdapter(this, binding.personRecyclerView, currentRoom, PersonListSingleton.personList)
+        personAdapter = PersonAdapter(this, currentRoom, PersonListSingleton.personList)
 
         binding.personRecyclerView.adapter = personAdapter
-        var layoutManager = LinearLayoutManager(this)
+        val layoutManager = LinearLayoutManager(this)
         binding.personRecyclerView.layoutManager = layoutManager
 
         binding.personRecyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
@@ -144,10 +153,13 @@ class LocalHomeActivity : AppCompatActivity() {
      */
     private fun addPerson(){
 
-        PersonListSingleton.personList.add(Person(""))
+        if (!PersonListSingleton.personList.contains(Person("")) && currentRoom.isNotBlank()) {
 
-        personAdapter = PersonAdapter(this, binding.personRecyclerView, currentRoom, PersonListSingleton.personList)
-        binding.personRecyclerView.adapter = personAdapter
+            PersonListSingleton.personList.add(Person(""))
+
+            personAdapter = PersonAdapter(this, currentRoom, PersonListSingleton.personList)
+            binding.personRecyclerView.adapter = personAdapter
+       }
     }
 
     /**
@@ -163,14 +175,17 @@ class LocalHomeActivity : AppCompatActivity() {
 
         roomListAutoCompleteTextView.requestFocus()
 
-        //clear the person list and update the listView
+        //clear the current room, person list and update the listView
+        currentRoom = ""
         PersonListSingleton.personList.clear()
         updatePersonListView()
+
+        refreshRoomDropDown()
 
         var inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(roomListAutoCompleteTextView, InputMethodManager.SHOW_IMPLICIT)
 
-        roomListAutoCompleteTextView.setOnEditorActionListener { v, actionId, event ->
+        roomListAutoCompleteTextView.setOnEditorActionListener { v, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 // get the enteredText and capitalise it
                 val enteredText = roomListAutoCompleteTextView.text.toString().replaceFirstChar { it.uppercaseChar() }
@@ -188,13 +203,19 @@ class LocalHomeActivity : AppCompatActivity() {
                     sharedPreferences.loadPersonListPref(currentRoom)
                     updatePersonListView()
                     refreshRoomDropDown()
+
+                    roomListAutoCompleteTextView.threshold = 0
+                    roomListAutoCompleteTextView.inputType = InputType.TYPE_NULL
+                } else {
+                    if (enteredText.isNotEmpty()){
+                        roomListAutoCompleteTextView.text.clear()
+                        Toast.makeText(this, "This room already exists", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
 
-                roomListAutoCompleteTextView.threshold = 0
-                roomListAutoCompleteTextView.inputType = InputType.TYPE_NULL
                 true
             } else {
                 false
@@ -209,6 +230,8 @@ class LocalHomeActivity : AppCompatActivity() {
         //remove room and save the room list
         RoomListSingleton.roomList.remove(roomListAutoCompleteTextView.text.toString())
         sharedPreferences.saveRoomNamesPref(RoomListSingleton.roomList)
+        sharedPreferences.removeGiftingListPref(currentRoom)
+        sharedPreferences.removePersonListPref(currentRoom)
 
         //clear the person list and update the listView
         PersonListSingleton.personList.clear()
@@ -231,11 +254,11 @@ class LocalHomeActivity : AppCompatActivity() {
     }
 
     /**
-     * This function will duplicate the list and match a gifter with a receiver.
+     * This function will duplicate the list and draw names for gifting
      *
-     * @param giftList The list of people in the room
+     * @return The list of drawn names
      */
-    private fun sortGifting() : List<Gifting>{
+    private fun drawNames() : List<Gifting>{
 
         val giftingList = mutableListOf<Gifting>()
 
@@ -269,5 +292,10 @@ class LocalHomeActivity : AppCompatActivity() {
         adjustedRoomList.remove(roomListAutoCompleteTextView.text.toString())
         val adapter = ArrayAdapter(this, R.layout.dropdown_item, adjustedRoomList)
         roomListAutoCompleteTextView.setAdapter(adapter)
+    }
+
+    private fun closeKeyboard(view: View){
+        val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }

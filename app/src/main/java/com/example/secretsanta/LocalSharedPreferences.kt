@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
+private const val GIFTING = "Gifting"
+
 class LocalSharedPreferences(context: Context) : AppCompatActivity() {
 
     private var sharedPreferences : SharedPreferences =
@@ -13,7 +15,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
 
 
     /**
-     * This function will load the gifting list from sharedPreferences
+     * This function will load the person list from sharedPreferences
      *
      * @param roomName The name of the room
      */
@@ -34,7 +36,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
     }
 
     /**
-     * Save the gifting list to sharedPreferences.
+     * Save the person list to sharedPreferences.
      *
      * @param roomName the name of the room
      */
@@ -46,6 +48,18 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
     }
 
     /**
+     * Remove the person list to sharedPreferences.
+     *
+     * @param roomName the name of the room
+     */
+    fun removePersonListPref(roomName : String){
+
+        if (sharedPreferences.contains(roomName)){
+            sharedPreferences.edit().remove(roomName).apply()
+        }
+    }
+
+    /**
      * This function will load the gifting list from sharedPreferences
      *
      * @param roomName The name of the room
@@ -54,7 +68,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
 
         var giftingListPref = mutableListOf<Gifting>()
 
-        val roomNameGifting = roomName + "Gifting"
+        val roomNameGifting = roomName + GIFTING
 
         // check if sharedPreferences has the current room name, if not, don't retrieve anything
         if (sharedPreferences.contains(roomNameGifting)){
@@ -78,9 +92,23 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
         val gson = Gson()
         val giftingJson = gson.toJson(giftingList)
 
-        val roomNameGifting = roomName + "Gifting"
+        val roomNameGifting = roomName + GIFTING
 
         sharedPreferences.edit().putString(roomNameGifting, giftingJson).apply()
+    }
+
+    /**
+     * Remove the gifting list to sharedPreferences.
+     *
+     * @param roomName the name of the room
+     */
+    fun removeGiftingListPref(roomName : String){
+
+        val giftingRoomName = roomName + GIFTING
+
+        if (sharedPreferences.contains(giftingRoomName)){
+            sharedPreferences.edit().remove(giftingRoomName).apply()
+        }
     }
 
     /**

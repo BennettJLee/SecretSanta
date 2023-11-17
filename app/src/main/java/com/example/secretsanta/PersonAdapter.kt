@@ -1,33 +1,22 @@
 package com.example.secretsanta
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.content.res.Resources
-import android.text.InputType
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.BaseAdapter
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.RelativeLayout
-import androidx.annotation.Dimension
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.secretsanta.databinding.PersoncardItemBinding
 
-class PersonAdapter(private val context: Context, private val recyclerView: RecyclerView, private val currentRoom: String, private val personList: MutableList<Person>) :
+class PersonAdapter(private val context: Context, private val currentRoom: String, private val personList: MutableList<Person>) :
 RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
 
-    inner class PersonViewHolder(private val binding: PersoncardItemBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class PersonViewHolder(binding: PersoncardItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val personNameEditText: EditText = binding.personNameEditText
         val removePersonButton: RelativeLayout = binding.removePersonButton
-        val personItemLayout: LinearLayout = binding.personItemLayout
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PersonViewHolder {
@@ -48,28 +37,31 @@ RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
             holder.personNameEditText.isFocusable = true
             holder.personNameEditText.requestFocus()
 
-            holder.personNameEditText.setOnEditorActionListener { v, actionId, event ->
+            holder.personNameEditText.setOnEditorActionListener { v, actionId, _ ->
 
-
-                var inputMethodManager =
-                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.showSoftInput(
-                    holder.personNameEditText,
-                    InputMethodManager.SHOW_IMPLICIT
-                )
+                var inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.showSoftInput(holder.personNameEditText, 0)
 
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     val enteredText = holder.personNameEditText.text.toString()
                         .replaceFirstChar { it.uppercaseChar() }
 
-                    holder.personNameEditText.setText(enteredText)
-                    currentPerson.name = enteredText
+                    if (!personList.contains(Person(enteredText))) {
 
-                    PersonListSingleton.personList[position].name = enteredText
-                    val sharedPreferences = LocalSharedPreferences(context)
-                    sharedPreferences.savePersonListPref(currentRoom)
+                        holder.personNameEditText.setText(enteredText)
+                        currentPerson.name = enteredText
 
-                    holder.personNameEditText.isFocusable = false
+                        PersonListSingleton.personList[position].name = enteredText
+                        val sharedPreferences = LocalSharedPreferences(context)
+                        sharedPreferences.savePersonListPref(currentRoom)
+
+                        holder.personNameEditText.isFocusable = false
+
+                    } else {
+
+                        holder.personNameEditText.text.clear()
+                        Toast.makeText(context, "This person already exists", Toast.LENGTH_SHORT).show()
+                    }
 
                     inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
@@ -90,7 +82,7 @@ RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
             val sharedPreferences = LocalSharedPreferences(context)
             sharedPreferences.savePersonListPref(currentRoom)
 
-            notifyDataSetChanged()
+            notifyItemRemoved(position)
         }
     }
 
@@ -98,33 +90,18 @@ RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
         return personList.size
     }
 
+    private fun removePerson(position: Int) {
+        personList.removeAt(position)
+        notifyItemRemoved(position)
 
-    /*private fun editPerson(){
+        PersonListSingleton.personList.removeAt(position)
 
-        personNameEditText.isFocusable = true
-        personNameEditText.hint = "Enter Name..."
+        val sharedPreferences = LocalSharedPreferences(context)
+        sharedPreferences.savePersonListPref(currentRoom)
 
-        personNameEditText.requestFocus()
+        // Notify the adapter that the remaining items after the removed position might have changed
+        notifyItemRangeChanged(position, personList.size - position)
 
-        var inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.showSoftInput(personNameEditText, 0)
-
-        personNameEditText.setOnEditorActionListener { v, actionId, event ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                // get the enteredText and capitalise it
-                val enteredText = personNameEditText.text.toString().replaceFirstChar { it.uppercaseChar() }
-
-                PersonListSingleton.personList.add(Person(enteredText))
-
-                inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(v.windowToken, 0)
-
-                personNameEditText.isFocusable = false
-                true
-            } else {
-                false
-            }
-        }
-    }*/
+    }
 
 }
