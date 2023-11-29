@@ -163,8 +163,4 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
         val stringSet = roomNames.toSet()
         sharedPreferences.edit().putStringSet("RoomNames", stringSet).apply()
     }
-
-    fun clearRoomNamesPref(){
-        sharedPreferences.edit().remove("RoomNames").apply()
-    }
 }

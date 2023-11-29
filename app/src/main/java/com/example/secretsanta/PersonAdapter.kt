@@ -131,6 +131,9 @@ RecyclerView.Adapter<PersonAdapter.PersonViewHolder>() {
         holder.personRemoveButton.setOnClickListener {
 
             removePerson(position)
+            // Hide the keyboard
+            val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(holder.personNameEditText.windowToken, 0)
         }
 
     }
