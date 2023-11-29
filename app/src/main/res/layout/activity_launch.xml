@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:layout_gravity="center"
     android:background="@color/backgroundBrown"
-    app:layout_anchorGravity="center">
+    app:layout_anchorGravity="center"
+    tools:viewBindingIgnore="true" >
 
     <EditText
         android:id="@+id/createRoomText"

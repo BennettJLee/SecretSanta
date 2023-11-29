@@ -3,6 +3,10 @@ package com.example.secretsanta
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
+import com.example.secretsanta.lists.Gifting
+import com.example.secretsanta.lists.Person
+import com.example.secretsanta.lists.PersonListSingleton
+import com.example.secretsanta.lists.RoomListSingleton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -19,7 +23,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
      *
      * @param roomName The name of the room
      */
-    fun loadPersonListPref(roomName : String) {
+    fun loadPersonListPref(roomName : String): MutableList<Person> {
 
         var personListPref = mutableListOf<Person>()
 
@@ -32,7 +36,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
             val personList = object : TypeToken<List<Person>>() {}.type
             personListPref = gson.fromJson(json, personList)
         }
-        PersonListSingleton.personList = personListPref
+        return personListPref
     }
 
     /**

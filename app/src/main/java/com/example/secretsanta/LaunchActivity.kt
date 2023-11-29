@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.TextView
+import com.example.secretsanta.lists.RoomListSingleton
 
 class LaunchActivity : AppCompatActivity() {
 
@@ -20,17 +21,9 @@ class LaunchActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_launch)
 
         sharedPreferences = LocalSharedPreferences(this)
-
-        // if in any rooms, go to a room and skip launch activity
-        if(sharedPreferences.loadRoomNamesPref()){
-            val intent = Intent(this, LocalHomeActivity::class.java)
-            startActivity(intent)
-        }
-
-        //Set the context and get the buttons
-        setContentView(R.layout.activity_launch)
 
         createRoomButton = findViewById(R.id.createRoomButton)
         createRoomText = findViewById(R.id.createRoomText)

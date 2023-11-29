@@ -11,4 +11,5 @@
         <item>Remove Room</item>
         <item>Draw Names</item>
     </string-array>
+    <string name="title_activity_splash">SplashActivity</string>
 </resources>

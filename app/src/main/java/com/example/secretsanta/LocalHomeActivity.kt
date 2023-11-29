@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
@@ -14,6 +15,11 @@ import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.secretsanta.databinding.ActivityLocalHomeBinding
+import com.example.secretsanta.lists.Gifting
+import com.example.secretsanta.lists.GiftingListSingleton
+import com.example.secretsanta.lists.Person
+import com.example.secretsanta.lists.PersonListSingleton
+import com.example.secretsanta.lists.RoomListSingleton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputLayout
 
@@ -34,7 +40,6 @@ class LocalHomeActivity : AppCompatActivity() {
     private lateinit var settingsTextInputLayout : TextInputLayout
 
     private lateinit var currentRoom : String
-    private lateinit var giftingList: MutableList<Gifting>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,8 +66,8 @@ class LocalHomeActivity : AppCompatActivity() {
         }
 
         //load gifting and person list for current room
-        giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
-        sharedPreferences.loadPersonListPref(currentRoom)
+        GiftingListSingleton.giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
+        PersonListSingleton.personList = sharedPreferences.loadPersonListPref(currentRoom)
 
 
         updatePersonListView()
@@ -82,7 +87,11 @@ class LocalHomeActivity : AppCompatActivity() {
             currentRoom = selectedItem
             sharedPreferences.saveCurrentRoomPref(currentRoom)
 
-            sharedPreferences.loadPersonListPref(currentRoom)
+            PersonListSingleton.personList.clear()
+            GiftingListSingleton.giftingList.clear()
+
+            GiftingListSingleton.giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
+            PersonListSingleton.personList = sharedPreferences.loadPersonListPref(currentRoom)
             updatePersonListView()
 
             roomListAutoCompleteTextView.threshold = 0
@@ -103,7 +112,9 @@ class LocalHomeActivity : AppCompatActivity() {
                     removeRoom()
                 }
                 2 -> {
-                    drawNames()
+                    if (!PersonListSingleton.personList.contains(Person(""))) {
+                        drawNames()
+                    }
                 }
             }
         }
@@ -157,9 +168,11 @@ class LocalHomeActivity : AppCompatActivity() {
 
             PersonListSingleton.personList.add(Person(""))
 
-            personAdapter = PersonAdapter(this, currentRoom, PersonListSingleton.personList)
-            binding.personRecyclerView.adapter = personAdapter
+            Log.e("test", PersonListSingleton.personList.toString())
+
+            updatePersonListView()
        }
+
     }
 
     /**
@@ -200,7 +213,11 @@ class LocalHomeActivity : AppCompatActivity() {
                     roomListTextInputLayout.editText?.setText(currentRoom)
                     sharedPreferences.saveCurrentRoomPref(currentRoom)
 
-                    sharedPreferences.loadPersonListPref(currentRoom)
+                    PersonListSingleton.personList.clear()
+                    GiftingListSingleton.giftingList.clear()
+
+                    GiftingListSingleton.giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
+                    PersonListSingleton.personList = sharedPreferences.loadPersonListPref(currentRoom)
                     updatePersonListView()
                     refreshRoomDropDown()
 
@@ -242,10 +259,17 @@ class LocalHomeActivity : AppCompatActivity() {
             currentRoom = RoomListSingleton.roomList[0]
             sharedPreferences.saveCurrentRoomPref(currentRoom)
 
+            PersonListSingleton.personList.clear()
+            GiftingListSingleton.giftingList.clear()
+
             //load the person list and update the listView
-            sharedPreferences.loadPersonListPref(currentRoom)
+            GiftingListSingleton.giftingList = sharedPreferences.loadGiftingListPref(currentRoom)
+            PersonListSingleton.personList = sharedPreferences.loadPersonListPref(currentRoom)
             updatePersonListView()
         } else {
+
+            PersonListSingleton.personList.clear()
+            GiftingListSingleton.giftingList.clear()
             val intent = Intent(this, LaunchActivity::class.java)
             startActivity(intent)
         }
@@ -258,29 +282,55 @@ class LocalHomeActivity : AppCompatActivity() {
      *
      * @return The list of drawn names
      */
-    private fun drawNames() : List<Gifting>{
+    private fun drawNames(){
 
-        val giftingList = mutableListOf<Gifting>()
+        GiftingListSingleton.giftingList.clear()
 
-        //copy the list and shuffle the copied list
-        val receiveList: MutableList<Person> = PersonListSingleton.personList.toMutableList()
+        //make 2 copies the list and shuffle the second list
+        var giftList: MutableList<Person> = PersonListSingleton.personList.toMutableList()
+        var receiveList: MutableList<Person> = PersonListSingleton.personList.toMutableList()
+        val giftingList: MutableList<Gifting> = mutableListOf()
+        val matchedGifterList: MutableList<Person> = mutableListOf()
+        val matchedReceiverList: MutableList<Person> = mutableListOf()
         receiveList.shuffle()
 
-        //match across lists until both are empty
-        while (PersonListSingleton.personList.isNotEmpty()) {
-            val gifter = PersonListSingleton.personList.removeAt(0)
+        var index = 0
+        //match across lists until everyone has been matches
+        while (index < giftList.size) {
+            var receiverFound = false
+            val gifter = giftList[index]
+            for (receiver in receiveList) {
 
-            for (receiver in receiveList){
-                if(receiver.name != gifter.name){
-                    giftingList.add(Gifting(gifter, receiver))
-                    receiveList.remove(receiver)
-                    break
-                }
+                    if (gifter != receiver && !matchedReceiverList.contains(receiver)) {
+                        giftingList.add(Gifting(gifter, receiver))
+                        matchedGifterList.add(gifter)
+                        matchedReceiverList.add(receiver)
+                        receiverFound = true
+                        break
+                    }
+            }
+            index++
+
+            //if receiver not found, remove the last person matched and rematch
+            Log.e("TEST", receiverFound.toString())
+            if (!receiverFound) {
+                Log.e("TEST", "here")
+                giftingList.removeAt(giftingList.size-1)
+                matchedGifterList.removeAt(matchedGifterList.size-1)
+
+                receiveList = giftList.filter { it !in matchedReceiverList }.toMutableList()
+                giftList = giftList.filter { it !in matchedGifterList }.toMutableList()
+                Log.e("TEST", "New ${giftList.toString()}")
+                matchedReceiverList.clear()
+                receiveList.shuffle()
+
+                index = 0
             }
         }
 
-        sharedPreferences.saveGiftingListPref(currentRoom, giftingList)
-        return giftingList
+        Log.e("TEST", giftingList.toString())
+        GiftingListSingleton.giftingList = giftingList
+        sharedPreferences.saveGiftingListPref(currentRoom, GiftingListSingleton.giftingList)
     }
 
     /**
@@ -294,6 +344,10 @@ class LocalHomeActivity : AppCompatActivity() {
         roomListAutoCompleteTextView.setAdapter(adapter)
     }
 
+
+    /**
+     * This function closes the keyboard
+     */
     private fun closeKeyboard(view: View){
         val inputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)

@@ -1,4 +1,4 @@
-package com.example.secretsanta
+package com.example.secretsanta.lists
 
 object PersonListSingleton {
     var personList : MutableList<Person> = mutableListOf()
