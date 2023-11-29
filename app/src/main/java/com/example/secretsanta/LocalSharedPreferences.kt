@@ -107,7 +107,6 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
      * @param roomName the name of the room
      */
     fun removeGiftingListPref(roomName : String){
-
         val giftingRoomName = roomName + GIFTING
 
         if (sharedPreferences.contains(giftingRoomName)){
@@ -121,6 +120,7 @@ class LocalSharedPreferences(context: Context) : AppCompatActivity() {
      * @return return a list of room names
      */
     fun loadRoomNamesPref() : Boolean{
+
         var inRoom = false
         if (sharedPreferences.contains("RoomNames")){
             val stringSet = sharedPreferences.getStringSet("RoomNames", setOf())

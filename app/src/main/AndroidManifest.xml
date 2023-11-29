@@ -16,7 +16,7 @@
             android:name=".SplashActivity"
             android:exported="true"
             android:label="@string/title_activity_splash"
-            android:theme="@style/Theme.SecretSanta">
+            android:theme="@style/Theme.SecretSanta.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,17 +26,13 @@
         <activity
             android:name=".LocalHomeActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/Theme.SecretSanta"/>
         <activity
             android:name=".LaunchActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/Theme.SecretSanta"/>
     </application>
 
 </manifest>
