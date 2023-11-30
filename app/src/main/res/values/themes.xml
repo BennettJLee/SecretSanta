@@ -5,7 +5,10 @@
         <item name="android:windowFullscreen">false</item>
     </style>
 
-    <style name="Theme.SecretSanta.Fullscreen" parent="Theme.SecretSanta">
-        <item name="android:windowFullscreen">true</item>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#f4e4a9</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/secret_santa_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.SecretSanta</item>
+        <item name="windowSplashScreenAnimationDuration">2000</item>
     </style>
 </resources>
