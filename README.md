@@ -2,7 +2,7 @@
 
 ## Description
 
-This application is a locale secret santa sorter, it always people to make rooms and add people who can be sorted with a person to gift to.
+This application is a local Secret Santa sorter, it allows people to make rooms and add people who can be sorted with a person to gift to.
 
 ## Table of Contents
 
